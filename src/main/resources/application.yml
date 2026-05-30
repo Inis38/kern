@@ -1,0 +1,26 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: kern
+  thymeleaf:
+    cache: false
+
+kern:
+  monitoring:
+    refresh-interval-ms: 5000
+    cpu-sample-delay-ms: 500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    com.kern: INFO
