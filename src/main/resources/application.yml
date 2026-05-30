@@ -17,6 +17,9 @@ kern:
       site-config-path: /etc/nginx/sites-available/kern-managed
       enabled-link-path: /etc/nginx/sites-enabled/kern-managed
       settings-path: /var/lib/kern/apps/nginx/settings.properties
+    ufw:
+      default-config-path: /etc/default/ufw
+      ufw-config-path: /etc/ufw/ufw.conf
 
 management:
   endpoints:

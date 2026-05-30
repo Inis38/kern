@@ -74,6 +74,16 @@ class WebPagesIntegrationTest {
     }
 
     @Test
+    fun `ufw detail renders status and settings`() {
+        stubUfwApp()
+        mockMvc.perform(get("/apps/ufw"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("UFW")))
+            .andExpect(content().string(containsString("Настройки")))
+            .andExpect(content().string(containsString("Порты")))
+    }
+
+    @Test
     fun `app install redirects to detail`() {
         stubNginxApp()
         `when`(appsService.install("nginx")).thenReturn(AppOperationResult(true, "ok"))
@@ -119,5 +129,38 @@ class WebPagesIntegrationTest {
             override fun saveConfig(values: Map<String, String>) = AppOperationResult(true, "saved")
         }
         `when`(appsService.get("nginx")).thenReturn(app)
+    }
+
+    private fun stubUfwApp() {
+        val status = ManagedAppStatus(
+            appId = ManagedAppId.UFW,
+            installState = InstallState.INSTALLED,
+            serviceState = ServiceState.RUNNING,
+            version = "0.36.2",
+            detail = "Активен, по умолчанию: входящие: deny, исходящие: allow (2 открытых порта): 22, 80",
+        )
+        val app = object : ManagedApplication {
+            override val id = ManagedAppId.UFW
+            override val description = "Сетевой экран"
+
+            override fun status() = status
+            override fun install() = AppOperationResult(true, "ok")
+            override fun configDefinitions() = listOf(
+                AppConfigFieldDefinition("enabled", "Брандмауэр включён", section = "Состояние"),
+                AppConfigFieldDefinition("openPorts", "Открытые порты", section = "Порты", type = ConfigFieldType.TEXTAREA),
+            )
+            override fun loadConfig() = listOf(
+                AppConfigField("enabled", "Брандмауэр включён", ConfigFieldType.TEXT, "yes", section = "Состояние"),
+                AppConfigField(
+                    "openPorts",
+                    "Открытые порты",
+                    ConfigFieldType.TEXTAREA,
+                    "22\n80/tcp",
+                    section = "Порты",
+                ),
+            )
+            override fun saveConfig(values: Map<String, String>) = AppOperationResult(true, "saved")
+        }
+        `when`(appsService.get("ufw")).thenReturn(app)
     }
 }

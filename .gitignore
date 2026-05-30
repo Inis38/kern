@@ -11,3 +11,4 @@ kern.log
 kern.log.*
 *.log
 /deploy.sh
+CHANGELOG.md

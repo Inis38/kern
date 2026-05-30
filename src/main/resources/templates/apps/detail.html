@@ -46,8 +46,12 @@
                             <label th:for="${'cfg_' + field.key}" th:text="${field.label}">Label</label>
                         </dt>
                         <dd>
-                            <input th:id="${'cfg_' + field.key}" th:name="${'cfg_' + field.key}"
+                            <input th:if="${field.type.name() == 'TEXT'}" th:id="${'cfg_' + field.key}"
+                                   th:name="${'cfg_' + field.key}"
                                    th:value="${field.value}" type="text" class="info-list__input"/>
+                            <textarea th:if="${field.type.name() == 'TEXTAREA'}" th:id="${'cfg_' + field.key}"
+                                      th:name="${'cfg_' + field.key}" class="info-list__input info-list__textarea"
+                                      rows="8" th:text="${field.value}"></textarea>
                             <span class="info-list__hint" th:if="${field.description}" th:text="${field.description}"></span>
                         </dd>
                     </div>

@@ -518,6 +518,19 @@ body {
     box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.info-list__textarea {
+    min-height: 8rem;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    line-height: 1.45;
+}
+
+.info-list__textarea[readonly] {
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: default;
+}
+
 .info-list__hint {
     display: block;
     margin-top: 0.3rem;
