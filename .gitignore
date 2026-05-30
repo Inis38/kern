@@ -7,4 +7,7 @@ out/
 *.ipr
 *.iws
 .DS_Store
+kern.log
+kern.log.*
 *.log
+/deploy.sh

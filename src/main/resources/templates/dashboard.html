@@ -1,22 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Kern</title>
-    <link rel="stylesheet" th:href="@{/css/app.css}"/>
-</head>
+<head th:replace="~{fragments/layout :: head('Мониторинг')}"></head>
 <body>
-<header class="header">
-    <div class="header__brand">
-        <span class="header__logo" aria-hidden="true">◈</span>
-        <h1 class="header__title">Kern</h1>
-    </div>
-    <div class="header__meta">
-        <span class="header__host" id="hostname" th:text="${data.host.hostname}">hostname</span>
-        <span class="header__updated" id="last-updated">Обновлено: —</span>
-    </div>
-</header>
+<header th:replace="~{fragments/layout :: page-header('monitoring')}"></header>
 
 <main class="main">
     <section class="status-card" id="health-card" th:classappend="'status-card--' + ${data.health.level}">
@@ -116,11 +102,7 @@
     </section>
 </main>
 
-<footer class="footer">
-    <span>Kern v0.1</span>
-    <span class="footer__dot">·</span>
-    <span>порт 8090</span>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 
 <script th:inline="javascript">
     window.KERN = {

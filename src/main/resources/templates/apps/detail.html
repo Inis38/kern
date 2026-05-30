@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${displayName})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: page-header('apps')}"></header>
+
+<main class="main">
+    <div th:replace="~{fragments/layout :: flash-messages}"></div>
+
+    <p class="breadcrumb"><a th:href="@{/apps}">Приложения</a> <span>/</span> <span th:text="${displayName}">App</span></p>
+
+    <section class="status-card"
+             th:classappend="${installed} ? ' status-card--healthy' : ' status-card--warning'">
+        <div class="status-card__indicator"></div>
+        <div class="status-card__content">
+            <h2 class="status-card__title" th:text="${displayName}">App</h2>
+            <p class="status-card__subtitle" th:text="${description}">—</p>
+            <ul class="status-card__checks">
+                <li class="check"
+                    th:classappend="${installed} ? ' check--healthy' : ' check--warning'"
+                    th:text="'Установка: ' + ${installLabel}">—</li>
+                <li th:if="${installed}" class="check"
+                    th:classappend="${status.serviceState.name() == 'RUNNING'} ? ' check--healthy' : ' check--warning'"
+                    th:text="'Служба: ' + ${serviceLabel}">—</li>
+                <li th:if="${status.detail}" class="check" th:text="${status.detail}">—</li>
+            </ul>
+        </div>
+        <div class="status-card__uptime" th:if="${status.version}">
+            <span class="label">Версия</span>
+            <span class="value" th:text="${status.version}">—</span>
+        </div>
+    </section>
+
+    <form th:if="${!installed}" th:action="@{/apps/{slug}/install(slug=${slug})}" method="post" class="card-actions">
+        <button type="submit" class="text-action">Установить</button>
+    </form>
+
+    <section class="section section--info" th:if="${installed}">
+        <h2 class="section__title">Настройки</h2>
+        <form th:action="@{/apps/{slug}/config(slug=${slug})}" method="post">
+            <div class="info-list">
+                <div th:each="sectionEntry : ${configSections}" class="config-block">
+                    <h3 class="config-block__title" th:text="${sectionEntry.key}">Section</h3>
+                    <div class="info-list__row" th:each="field : ${sectionEntry.value}">
+                        <dt>
+                            <label th:for="${'cfg_' + field.key}" th:text="${field.label}">Label</label>
+                        </dt>
+                        <dd>
+                            <input th:id="${'cfg_' + field.key}" th:name="${'cfg_' + field.key}"
+                                   th:value="${field.value}" type="text" class="info-list__input"/>
+                            <span class="info-list__hint" th:if="${field.description}" th:text="${field.description}"></span>
+                        </dd>
+                    </div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button type="submit" class="text-action">Сохранить и применить</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -4,3 +4,5 @@ services:
     ports:
       - "8090:8090"
     restart: unless-stopped
+    # root нужен для apt install / записи в /etc/nginx (менеджер приложений)
+    user: "0:0"

@@ -12,9 +12,9 @@
 ## Архитектура
 
 ```
-domain/          — модели и порты (MetricsCollector, HealthEvaluator)
-application/     — MonitoringService (фасад для UI и будущих модулей)
-infrastructure/  — реализации (OSHI, оценка здоровья)
+domain/          — модели и порты (MetricsCollector, HealthEvaluator, ManagedApplication)
+application/     — MonitoringService, AppsService
+infrastructure/  — OSHI, health, ProcessRunner, nginx, …
 web/             — контроллеры, DTO, REST API
 ```
 
@@ -67,9 +67,45 @@ docker run --rm -p 8090:8090 kern
 
 Runtime-образ: **Ubuntu 24.04** + JRE 21. Метрики отражают окружение контейнера.
 
+## Приложения
+
+Раздел **Приложения** (`/apps`) — установка и настройка серверного ПО. Список расширяется постепенно; сейчас доступен **Nginx**:
+
+- проверка, установлен ли пакет;
+- установка через `apt-get` (Debian/Ubuntu);
+- настройка виртуального хоста (порт, `server_name`, root, index, `client_max_body_size`).
+
+Для установки Kern должен запускаться с правами root (в Docker Compose это уже задано: `user: "0:0"`).
+
 ## API
 
-`GET /api/v1/monitoring` — JSON-снимок метрик и состояния (используется автообновлением дашборда).
+`GET /api/v1/monitoring` — JSON-снимок метрик и состояния.
+
+`GET /api/v1/apps` — список управляемых приложений.
+
+`GET /api/v1/apps/{slug}` — статус и конфигурация.
+
+`POST /api/v1/apps/{slug}/install` — установка.
+
+`PUT /api/v1/apps/{slug}/config` — сохранение настроек (JSON body).
+
+## Логи
+
+Файл **`kern.log`** создаётся в рабочей директории процесса — рядом с JAR, если запускать из той же папки:
+
+```bash
+cd /opt/kern
+java -jar kern.jar
+tail -f kern.log
+```
+
+В Docker JAR лежит в `/app`, лог — `/app/kern.log`:
+
+```bash
+docker compose exec kern tail -f /app/kern.log
+```
+
+Ротация: до 10 MB на файл, 30 архивов (`.gz`).
 
 ## Конфигурация
 
@@ -78,3 +114,4 @@ Runtime-образ: **Ubuntu 24.04** + JRE 21. Метрики отражают �
 - `server.port` — порт (8090)
 - `kern.monitoring.refresh-interval-ms` — интервал обновления UI
 - `kern.monitoring.cpu-sample-delay-ms` — задержка замера CPU
+- `kern.apps.nginx.*` — пути конфигурации Nginx

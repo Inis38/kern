@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title} + ' — Kern'">Kern</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+</head>
+<body>
+<header class="header" th:fragment="page-header(active)">
+    <div class="header__brand">
+        <a th:href="@{/}" class="header__brand-link">
+            <span class="header__logo" aria-hidden="true">◈</span>
+            <span class="header__title">Kern</span>
+        </a>
+    </div>
+    <nav class="header__nav" aria-label="Разделы">
+        <a th:href="@{/}" class="header__nav-link" th:classappend="${active == 'monitoring'} ? 'is-active' : ''">Мониторинг</a>
+        <a th:href="@{/apps}" class="header__nav-link" th:classappend="${active == 'apps'} ? 'is-active' : ''">Приложения</a>
+    </nav>
+    <div class="header__slot" th:if="${data != null}">
+        <div class="header__meta">
+            <span class="header__host" id="hostname" th:text="${data.host.hostname}">hostname</span>
+            <span class="header__updated" id="last-updated">Обновлено: —</span>
+        </div>
+    </div>
+</header>
+
+<div th:fragment="flash-messages">
+    <div class="notice notice--success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="notice notice--error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+</div>
+
+<footer class="footer" th:fragment="footer">
+    <span>Kern v0.1</span>
+    <span class="footer__dot">·</span>
+    <span>порт 8090</span>
+</footer>
+</body>
+</html>
