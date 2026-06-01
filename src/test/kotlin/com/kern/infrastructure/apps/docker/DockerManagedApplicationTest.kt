@@ -181,6 +181,9 @@ class DockerManagedApplicationTest {
         DockerManagedApplication(
             object : CommandExecutor {
                 override fun runShell(command: String): ProcessResult = onCommand(command)
+
+                override fun runShell(command: String, timeoutSeconds: Long): ProcessResult =
+                    onCommand(command)
             },
         )
 

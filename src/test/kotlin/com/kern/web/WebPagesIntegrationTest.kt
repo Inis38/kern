@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 
-@WebMvcTest(controllers = [DashboardController::class, AppsController::class])
+@WebMvcTest(controllers = [DashboardController::class, AppsController::class, SecurityController::class])
 @Import(WebMvcTestConfig::class)
 class WebPagesIntegrationTest {
 
@@ -55,6 +55,15 @@ class WebPagesIntegrationTest {
             .andExpect(status().isOk)
             .andExpect(content().string(containsString("Kern")))
             .andExpect(content().string(containsString("CPU")))
+    }
+
+    @Test
+    fun `security page renders shell without blocking on data`() {
+        mockMvc.perform(get("/security"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("Безопасность")))
+            .andExpect(content().string(containsString("Загрузка данных")))
+            .andExpect(content().string(containsString("security.js")))
     }
 
     @Test

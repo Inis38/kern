@@ -444,6 +444,31 @@ body {
     color: var(--text-muted);
 }
 
+.tag--warn {
+    color: var(--warning);
+}
+
+.tag--critical {
+    color: var(--critical);
+}
+
+.recommendation-card--critical {
+    border-left: 4px solid var(--critical);
+}
+
+.recommendation-card--warning {
+    border-left: 4px solid var(--warning);
+}
+
+.recommendation-card--info {
+    border-left: 4px solid var(--accent);
+}
+
+.main--loading .metric-card__value,
+.main--loading #security-rec-count {
+    color: var(--text-muted);
+}
+
 .card-action {
     display: inline-block;
     margin-top: 0.5rem;

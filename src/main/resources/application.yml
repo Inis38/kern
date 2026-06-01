@@ -11,6 +11,10 @@ kern:
   monitoring:
     refresh-interval-ms: 5000
     cpu-sample-delay-ms: 500
+  security:
+    command-timeout-seconds: 8
+    auth-log-timeout-seconds: 12
+    auth-log-tail-lines: 3000
   apps:
     command-timeout-seconds: 300
     nginx:

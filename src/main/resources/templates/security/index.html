@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Безопасность')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: page-header('security')}"></header>
+
+<main class="main main--loading" id="security-main">
+    <section class="status-card status-card--healthy" id="security-status-card">
+        <div class="status-card__indicator" id="security-status-indicator"></div>
+        <div class="status-card__content">
+            <h2 class="status-card__title" id="security-status-message">Загрузка данных…</h2>
+            <p class="status-card__subtitle" id="security-status-subtitle">Анализ журналов и настроек сервера</p>
+        </div>
+        <div class="status-card__uptime">
+            <span class="label">Рекомендаций</span>
+            <span class="value" id="security-rec-count">—</span>
+        </div>
+    </section>
+
+    <div class="notice notice--error" id="security-load-error" hidden></div>
+
+    <section class="grid grid--metrics">
+        <article class="metric-card">
+            <header class="metric-card__header">
+                <h3>SSH за 24 ч</h3>
+                <span class="metric-card__value" id="ssh-24-total">—</span>
+            </header>
+            <p class="metric-card__hint" id="ssh-24-hint">—</p>
+        </article>
+
+        <article class="metric-card">
+            <header class="metric-card__header">
+                <h3>С паролем за 24 ч</h3>
+                <span class="metric-card__value" id="password-24-total">—</span>
+            </header>
+            <p class="metric-card__hint" id="password-24-hint">Успешные входы по паролю (включая SSH)</p>
+        </article>
+
+        <article class="metric-card metric-card--wide">
+            <header class="metric-card__header">
+                <h3>За 7 дней</h3>
+            </header>
+            <div class="load-grid">
+                <div class="load-item">
+                    <span class="load-item__label">SSH всего</span>
+                    <span class="load-item__value" id="ssh-7-total">—</span>
+                </div>
+                <div class="load-item">
+                    <span class="load-item__label">SSH по ключу</span>
+                    <span class="load-item__value" id="ssh-7-key">—</span>
+                </div>
+                <div class="load-item">
+                    <span class="load-item__label">С паролем</span>
+                    <span class="load-item__value" id="password-7-total">—</span>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="section" id="recent-events-section" hidden>
+        <h2 class="section__title">Недавние успешные входы</h2>
+        <p class="section__lead">Последние события из журнала аутентификации</p>
+        <div class="disk-list" id="recent-events-list"></div>
+    </section>
+
+    <section class="section">
+        <h2 class="section__title">Рекомендации</h2>
+        <p class="section__lead">Проверка SSH, брандмауэра и базовых мер защиты</p>
+        <div class="disk-list" id="recommendations-list"></div>
+        <p class="section__lead" id="recommendations-empty" hidden>
+            Очевидных проблем не найдено. Продолжайте обновлять систему и ограничивать открытые порты.
+        </p>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:inline="javascript">
+    window.KERN_SECURITY = {
+        apiUrl: /*[[@{/api/v1/security}]]*/ '/api/v1/security',
+        fetchTimeoutMs: 30000
+    };
+</script>
+<script th:src="@{/js/security.js}"></script>
+</body>
+</html>

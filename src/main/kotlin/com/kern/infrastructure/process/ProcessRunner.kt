@@ -20,7 +20,7 @@ class ProcessRunner(
     override fun runShell(command: String): ProcessResult =
         runShell(command, appsProperties.commandTimeoutSeconds)
 
-    fun runShell(command: String, timeoutSeconds: Long): ProcessResult {
+    override fun runShell(command: String, timeoutSeconds: Long): ProcessResult {
         val process = ProcessBuilder(listOf("/bin/bash", "-c", command))
             .redirectErrorStream(true)
             .start()
