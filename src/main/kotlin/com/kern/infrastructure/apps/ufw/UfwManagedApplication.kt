@@ -9,7 +9,7 @@ import com.kern.domain.apps.ManagedAppId
 import com.kern.domain.apps.ManagedAppStatus
 import com.kern.domain.apps.ServiceState
 import com.kern.domain.port.ManagedApplication
-import com.kern.infrastructure.process.ProcessRunner
+import com.kern.infrastructure.process.CommandExecutor
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,7 +19,7 @@ import kotlin.io.path.writeText
 
 @Component
 class UfwManagedApplication(
-    private val processRunner: ProcessRunner,
+    private val commandExecutor: CommandExecutor,
     private val appsProperties: AppsProperties,
 ) : ManagedApplication {
 
@@ -39,9 +39,9 @@ class UfwManagedApplication(
             )
         }
 
-        val version = extractVersion(processRunner.runShell("ufw version 2>&1").output)
+        val version = extractVersion(commandExecutor.runShell("ufw version 2>&1").output)
         val serviceState = detectServiceState()
-        val verbose = processRunner.runShell("ufw status verbose 2>&1").output
+        val verbose = commandExecutor.runShell("ufw status verbose 2>&1").output
         return ManagedAppStatus(
             appId = id,
             installState = InstallState.INSTALLED,
@@ -56,14 +56,14 @@ class UfwManagedApplication(
             return AppOperationResult(true, "UFW уже установлен")
         }
 
-        if (!processRunner.runShell("command -v apt-get").success) {
+        if (!commandExecutor.runShell("command -v apt-get").success) {
             return AppOperationResult(
                 false,
                 "Установка поддерживается только на Debian/Ubuntu (apt-get)",
             )
         }
 
-        val install = processRunner.runShell(
+        val install = commandExecutor.runShell(
             "export DEBIAN_FRONTEND=noninteractive && " +
                 "apt-get update -qq && apt-get install -y -qq ufw",
         )
@@ -127,7 +127,7 @@ class UfwManagedApplication(
             return AppOperationResult(false, enableResult.message)
         }
 
-        val reload = processRunner.runShell("ufw reload 2>&1")
+        val reload = commandExecutor.runShell("ufw reload 2>&1")
         return if (reload.success) {
             AppOperationResult(true, "Настройки сохранены и применены")
         } else {
@@ -136,10 +136,10 @@ class UfwManagedApplication(
     }
 
     private fun isInstalled(): Boolean =
-        processRunner.runShell("command -v ufw").success
+        commandExecutor.runShell("command -v ufw").success
 
     private fun detectServiceState(): ServiceState {
-        val statusOutput = processRunner.runShell("ufw status 2>&1").output
+        val statusOutput = commandExecutor.runShell("ufw status 2>&1").output
         return when {
             statusOutput.contains("Status: active", ignoreCase = true) -> ServiceState.RUNNING
             statusOutput.contains("Status: inactive", ignoreCase = true) -> ServiceState.STOPPED
@@ -162,7 +162,7 @@ class UfwManagedApplication(
             RegexOption.IGNORE_CASE,
         ).find(verboseOutput)?.groupValues?.get(1)?.trim()
 
-        val numbered = processRunner.runShell("ufw status numbered 2>&1").output
+        val numbered = commandExecutor.runShell("ufw status numbered 2>&1").output
         val openPorts = UfwPortRules.parseFromStatusOutput(numbered)
         val rulesCount = openPorts.size
         val rulesPart = when (rulesCount) {
@@ -212,7 +212,7 @@ class UfwManagedApplication(
     }
 
     private fun fetchOpenPortsListing(): String {
-        val numbered = processRunner.runShell("ufw status numbered 2>&1").output
+        val numbered = commandExecutor.runShell("ufw status numbered 2>&1").output
         return UfwPortRules.formatForUser(UfwPortRules.parseFromStatusOutput(numbered))
     }
 
@@ -223,14 +223,14 @@ class UfwManagedApplication(
         }
 
         val desired = UfwPortRules.parseFromUserInput(input)
-        val numbered = processRunner.runShell("ufw status numbered 2>&1").output
+        val numbered = commandExecutor.runShell("ufw status numbered 2>&1").output
         val current = UfwPortRules.parseFromStatusOutput(numbered)
 
         val currentSpecs = current.map { it.spec }.toSet()
         val desiredSpecs = desired.map { it.spec }.toSet()
 
         for (rule in current.filter { it.spec !in desiredSpecs }) {
-            val delete = processRunner.runShell("ufw --force delete allow ${rule.ufwAllowArg()} 2>&1")
+            val delete = commandExecutor.runShell("ufw --force delete allow ${rule.ufwAllowArg()} 2>&1")
             if (!delete.success) {
                 return AppOperationResult(
                     false,
@@ -240,7 +240,7 @@ class UfwManagedApplication(
         }
 
         for (rule in desired.filter { it.spec !in currentSpecs }) {
-            val allow = processRunner.runShell("ufw allow ${rule.ufwAllowArg()} 2>&1")
+            val allow = commandExecutor.runShell("ufw allow ${rule.ufwAllowArg()} 2>&1")
             if (!allow.success) {
                 return AppOperationResult(
                     false,
@@ -342,7 +342,7 @@ class UfwManagedApplication(
         val current = detectServiceState()
 
         if (shouldEnable && current != ServiceState.RUNNING) {
-            val result = processRunner.runShell("ufw --force enable 2>&1")
+            val result = commandExecutor.runShell("ufw --force enable 2>&1")
             return if (result.success) {
                 AppOperationResult(true, "UFW включён")
             } else {
@@ -351,7 +351,7 @@ class UfwManagedApplication(
         }
 
         if (!shouldEnable && current == ServiceState.RUNNING) {
-            val result = processRunner.runShell("ufw disable 2>&1")
+            val result = commandExecutor.runShell("ufw disable 2>&1")
             return if (result.success) {
                 AppOperationResult(true, "UFW отключён")
             } else {

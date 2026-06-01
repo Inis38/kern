@@ -11,7 +11,7 @@ import com.kern.domain.apps.ManagedAppStatus
 import com.kern.domain.apps.ServiceState
 import com.kern.domain.port.ManagedApplication
 import com.kern.infrastructure.process.ProcessResult
-import com.kern.infrastructure.process.ProcessRunner
+import com.kern.infrastructure.process.CommandExecutor
 import org.springframework.stereotype.Component
 import java.nio.file.Files
 import java.nio.file.Path
@@ -21,7 +21,7 @@ import kotlin.io.path.writeText
 
 @Component
 class NginxManagedApplication(
-    private val processRunner: ProcessRunner,
+    private val commandExecutor: CommandExecutor,
     private val appsProperties: AppsProperties,
 ) : ManagedApplication {
 
@@ -31,9 +31,9 @@ class NginxManagedApplication(
     private val nginxProps get() = appsProperties.nginx
 
     override fun status(): ManagedAppStatus {
-        val versionResult = processRunner.runShell("nginx -v 2>&1")
+        val versionResult = commandExecutor.runShell("nginx -v 2>&1")
         val installed = versionResult.exitCode == 0 ||
-            processRunner.runShell("command -v nginx").success
+            commandExecutor.runShell("command -v nginx").success
 
         if (!installed) {
             return ManagedAppStatus(
@@ -60,14 +60,14 @@ class NginxManagedApplication(
             return AppOperationResult(true, "Nginx уже установлен")
         }
 
-        if (!processRunner.runShell("command -v apt-get").success) {
+        if (!commandExecutor.runShell("command -v apt-get").success) {
             return AppOperationResult(
                 false,
                 "Установка поддерживается только на Debian/Ubuntu (apt-get)",
             )
         }
 
-        val install = processRunner.runShell(
+        val install = commandExecutor.runShell(
             "export DEBIAN_FRONTEND=noninteractive && " +
                 "apt-get update -qq && apt-get install -y -qq nginx",
         )
@@ -116,7 +116,7 @@ class NginxManagedApplication(
         writeSettings(merged)
         applySiteConfig(merged)
 
-        val test = processRunner.runShell("nginx -t 2>&1")
+        val test = commandExecutor.runShell("nginx -t 2>&1")
         if (!test.success) {
             return AppOperationResult(false, "Проверка конфигурации не пройдена: ${test.output}")
         }
@@ -165,20 +165,20 @@ class NginxManagedApplication(
     }
 
     private fun reloadOrStart(): ProcessResult {
-        val active = processRunner.runShell("systemctl is-active nginx 2>/dev/null")
+        val active = commandExecutor.runShell("systemctl is-active nginx 2>/dev/null")
         if (active.success && active.output.trim() == "active") {
-            return processRunner.runShell("systemctl reload nginx 2>&1")
+            return commandExecutor.runShell("systemctl reload nginx 2>&1")
         }
-        val start = processRunner.runShell("systemctl start nginx 2>&1")
+        val start = commandExecutor.runShell("systemctl start nginx 2>&1")
         if (start.success) return start
-        return processRunner.runShell("nginx -s reload 2>&1 || nginx 2>&1")
+        return commandExecutor.runShell("nginx -s reload 2>&1 || nginx 2>&1")
     }
 
     private fun detectServiceState(): ServiceState {
-        val systemd = processRunner.runShell("systemctl is-active nginx 2>/dev/null")
+        val systemd = commandExecutor.runShell("systemctl is-active nginx 2>/dev/null")
         if (systemd.output.trim() == "active") return ServiceState.RUNNING
         if (systemd.output.trim() == "inactive") return ServiceState.STOPPED
-        return if (processRunner.runShell("pgrep -x nginx").success) {
+        return if (commandExecutor.runShell("pgrep -x nginx").success) {
             ServiceState.RUNNING
         } else {
             ServiceState.STOPPED

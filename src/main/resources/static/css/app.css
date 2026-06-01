@@ -66,9 +66,10 @@ body {
 }
 
 .header__logo {
-    font-size: 1.25rem;
-    line-height: 1;
-    color: var(--accent);
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: block;
 }
 
 .header__title {

@@ -15,9 +15,12 @@ data class ProcessResult(
 @Component
 class ProcessRunner(
     private val appsProperties: AppsProperties,
-) {
+) : CommandExecutor {
 
-    fun runShell(command: String, timeoutSeconds: Long = appsProperties.commandTimeoutSeconds): ProcessResult {
+    override fun runShell(command: String): ProcessResult =
+        runShell(command, appsProperties.commandTimeoutSeconds)
+
+    fun runShell(command: String, timeoutSeconds: Long): ProcessResult {
         val process = ProcessBuilder(listOf("/bin/bash", "-c", command))
             .redirectErrorStream(true)
             .start()

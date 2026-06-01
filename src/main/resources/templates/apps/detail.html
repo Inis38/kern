@@ -35,7 +35,25 @@
         <button type="submit" class="text-action">Установить</button>
     </form>
 
-    <section class="section section--info" th:if="${installed}">
+    <section class="section" th:if="${containers != null}">
+        <h2 class="section__title">Запущенные контейнеры</h2>
+        <p class="section__lead" th:if="${#lists.isEmpty(containers)}">
+            Сейчас нет запущенных контейнеров
+        </p>
+        <div class="disk-list" th:if="${!#lists.isEmpty(containers)}">
+            <article class="disk-card" th:each="container : ${containers}">
+                <div class="disk-card__header">
+                    <span class="disk-card__name" th:text="${container.name}">name</span>
+                    <span class="disk-card__mount" th:text="${container.image}">image</span>
+                    <span class="tag tag--ok" th:text="${container.status}">running</span>
+                </div>
+                <p class="disk-card__hint" th:text="'ID: ' + ${container.id}">—</p>
+                <p class="disk-card__hint" th:if="${container.ports}" th:text="'Порты: ' + ${container.ports}">—</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="section section--info" th:if="${installed and !configSections.isEmpty()}">
         <h2 class="section__title">Настройки</h2>
         <form th:action="@{/apps/{slug}/config(slug=${slug})}" method="post">
             <div class="info-list">

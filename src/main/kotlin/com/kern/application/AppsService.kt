@@ -4,7 +4,9 @@ import com.kern.domain.apps.AppConfigField
 import com.kern.domain.apps.AppOperationResult
 import com.kern.domain.apps.ManagedAppId
 import com.kern.domain.apps.ManagedAppStatus
+import com.kern.domain.apps.RunningContainer
 import com.kern.domain.port.ManagedApplication
+import com.kern.domain.port.RunningContainerProvider
 import com.kern.infrastructure.apps.ManagedApplicationRegistry
 import org.springframework.stereotype.Service
 
@@ -50,6 +52,11 @@ class AppsService(
     }
 
     fun status(slug: String): ManagedAppStatus = requireApp(slug).status()
+
+    fun listRunningContainers(slug: String): List<RunningContainer> {
+        val app = registry.get(slug) ?: return emptyList()
+        return (app as? RunningContainerProvider)?.listRunningContainers() ?: emptyList()
+    }
 
     private fun requireApp(slug: String): ManagedApplication =
         registry.get(slug)

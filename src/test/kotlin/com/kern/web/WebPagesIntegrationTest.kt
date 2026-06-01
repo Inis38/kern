@@ -11,6 +11,7 @@ import com.kern.domain.apps.ConfigFieldType
 import com.kern.domain.apps.InstallState
 import com.kern.domain.apps.ManagedAppId
 import com.kern.domain.apps.ManagedAppStatus
+import com.kern.domain.apps.RunningContainer
 import com.kern.domain.apps.ServiceState
 import com.kern.domain.model.CpuMetrics
 import com.kern.domain.model.HealthLevel
@@ -71,6 +72,28 @@ class WebPagesIntegrationTest {
             .andExpect(status().isOk)
             .andExpect(content().string(containsString("Nginx")))
             .andExpect(content().string(containsString("Настройки")))
+    }
+
+    @Test
+    fun `docker detail renders status and containers`() {
+        stubDockerApp()
+        `when`(appsService.listRunningContainers("docker")).thenReturn(
+            listOf(
+                RunningContainer(
+                    id = "abc123",
+                    name = "web",
+                    image = "nginx:alpine",
+                    status = "Up 1 hour",
+                    ports = "0.0.0.0:80->80/tcp",
+                ),
+            ),
+        )
+        mockMvc.perform(get("/apps/docker"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("Docker")))
+            .andExpect(content().string(containsString("Запущенные контейнеры")))
+            .andExpect(content().string(containsString("web")))
+            .andExpect(content().string(containsString("nginx:alpine")))
     }
 
     @Test
@@ -162,5 +185,27 @@ class WebPagesIntegrationTest {
             override fun saveConfig(values: Map<String, String>) = AppOperationResult(true, "saved")
         }
         `when`(appsService.get("ufw")).thenReturn(app)
+    }
+
+    private fun stubDockerApp() {
+        val status = ManagedAppStatus(
+            appId = ManagedAppId.DOCKER,
+            installState = InstallState.INSTALLED,
+            serviceState = ServiceState.RUNNING,
+            version = "27.5.1",
+            detail = "Демон запущен, 1 контейнер",
+        )
+        val app = object : ManagedApplication {
+            override val id = ManagedAppId.DOCKER
+            override val description = "Контейнеризация"
+
+            override fun status() = status
+            override fun install() = AppOperationResult(true, "ok")
+            override fun configDefinitions(): List<AppConfigFieldDefinition> = emptyList()
+            override fun loadConfig(): List<AppConfigField> = emptyList()
+            override fun saveConfig(values: Map<String, String>) =
+                AppOperationResult(false, "Нет настроек")
+        }
+        `when`(appsService.get("docker")).thenReturn(app)
     }
 }

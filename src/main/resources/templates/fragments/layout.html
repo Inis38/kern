@@ -4,13 +4,15 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title th:text="${title} + ' — Kern'">Kern</title>
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/kern-logo.svg}"/>
+    <link rel="apple-touch-icon" th:href="@{/img/kern-logo.svg}"/>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
 </head>
 <body>
 <header class="header" th:fragment="page-header(active)">
     <div class="header__brand">
         <a th:href="@{/}" class="header__brand-link">
-            <span class="header__logo" aria-hidden="true">◈</span>
+            <img th:src="@{/img/kern-logo.svg}" src="/img/kern-logo.svg" alt="" class="header__logo" width="28" height="28"/>
             <span class="header__title">Kern</span>
         </a>
     </div>

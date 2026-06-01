@@ -1,6 +1,7 @@
 package com.kern.web
 
 import com.kern.application.AppsService
+import com.kern.domain.apps.ManagedAppId
 import com.kern.web.dto.isInstalled
 import com.kern.web.dto.labelRu
 import org.springframework.stereotype.Controller
@@ -44,6 +45,9 @@ class AppsController(
         model.addAttribute("installed", status.installState.isInstalled())
         val configFields = app.loadConfig()
         model.addAttribute("configSections", configFields.groupBy { it.section })
+        if (app.id == ManagedAppId.DOCKER) {
+            model.addAttribute("containers", appsService.listRunningContainers(slug))
+        }
         return "apps/detail"
     }
 
