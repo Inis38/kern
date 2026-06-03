@@ -1,6 +1,7 @@
 package com.kern.web
 
 import com.kern.application.AppsService
+import com.kern.application.FileManagerService
 import com.kern.application.MonitoringService
 import com.kern.application.MonitoringSnapshot
 import com.kern.application.ManagedAppOverview
@@ -35,7 +36,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 
-@WebMvcTest(controllers = [DashboardController::class, AppsController::class, SecurityController::class])
+@WebMvcTest(
+    controllers = [
+        DashboardController::class,
+        AppsController::class,
+        SecurityController::class,
+        FileManagerController::class,
+    ],
+)
 @Import(WebMvcTestConfig::class)
 class WebPagesIntegrationTest {
 
@@ -48,6 +56,9 @@ class WebPagesIntegrationTest {
     @MockitoBean
     private lateinit var appsService: AppsService
 
+    @MockitoBean
+    private lateinit var fileManagerService: FileManagerService
+
     @Test
     fun `dashboard renders successfully`() {
         stubMonitoring()
@@ -55,6 +66,15 @@ class WebPagesIntegrationTest {
             .andExpect(status().isOk)
             .andExpect(content().string(containsString("Kern")))
             .andExpect(content().string(containsString("CPU")))
+    }
+
+    @Test
+    fun `files page renders shell`() {
+        `when`(fileManagerService.defaultDirectory()).thenReturn("/tmp")
+        mockMvc.perform(get("/files"))
+            .andExpect(status().isOk)
+            .andExpect(content().string(containsString("Файлы на сервере")))
+            .andExpect(content().string(containsString("files.js")))
     }
 
     @Test

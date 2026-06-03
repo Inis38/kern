@@ -2,7 +2,11 @@ package com.kern.web
 
 import com.kern.application.AppsService
 import com.kern.application.MonitoringService
+import com.kern.application.FileManagerService
 import com.kern.application.SecurityService
+import com.kern.domain.files.DirectoryListing
+import com.kern.domain.files.FileEntry
+import com.kern.domain.files.FileEntryType
 import com.kern.domain.security.AuthPeriodStats
 import com.kern.domain.security.AuthStats
 import com.kern.domain.security.SecurityOverview
@@ -20,6 +24,7 @@ import com.kern.domain.model.MemoryMetrics
 import com.kern.domain.model.SystemMetrics
 import com.kern.web.api.AppsApiController
 import com.kern.web.api.MonitoringApiController
+import com.kern.web.api.FileManagerApiController
 import com.kern.web.api.SecurityApiController
 import org.hamcrest.Matchers.hasSize
 import org.junit.jupiter.api.Test
@@ -35,7 +40,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Instant
 
-@WebMvcTest(controllers = [MonitoringApiController::class, AppsApiController::class, SecurityApiController::class])
+@WebMvcTest(
+    controllers = [
+        MonitoringApiController::class,
+        AppsApiController::class,
+        SecurityApiController::class,
+        FileManagerApiController::class,
+    ],
+)
 @Import(WebMvcTestConfig::class)
 class ApiIntegrationTest {
 
@@ -50,6 +62,9 @@ class ApiIntegrationTest {
 
     @MockitoBean
     private lateinit var securityService: SecurityService
+
+    @MockitoBean
+    private lateinit var fileManagerService: FileManagerService
 
     @Test
     fun `monitoring api returns json`() {
@@ -94,6 +109,33 @@ class ApiIntegrationTest {
             .andExpect(jsonPath("$.hostname").value("secure-host"))
             .andExpect(jsonPath("$.auth.last24Hours.sshTotal").value(2))
             .andExpect(jsonPath("$.statusLevel").value("healthy"))
+    }
+
+    @Test
+    fun `files api returns directory listing`() {
+        `when`(fileManagerService.list("/tmp")).thenReturn(
+            DirectoryListing(
+                path = "/tmp",
+                parentPath = "/",
+                entries = listOf(
+                    FileEntry(
+                        name = "note.txt",
+                        path = "/tmp/note.txt",
+                        type = FileEntryType.FILE,
+                        sizeBytes = 4,
+                        modifiedAt = Instant.parse("2026-01-01T00:00:00Z"),
+                        readable = true,
+                        writable = true,
+                    ),
+                ),
+            ),
+        )
+
+        mockMvc.perform(get("/api/v1/files").param("path", "/tmp").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.path").value("/tmp"))
+            .andExpect(jsonPath("$.entries[0].name").value("note.txt"))
+            .andExpect(jsonPath("$.entries[0].type").value("file"))
     }
 
     @Test

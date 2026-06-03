@@ -20,6 +20,7 @@
         <a th:href="@{/}" class="header__nav-link" th:classappend="${active == 'monitoring'} ? 'is-active' : ''">Мониторинг</a>
         <a th:href="@{/apps}" class="header__nav-link" th:classappend="${active == 'apps'} ? 'is-active' : ''">Приложения</a>
         <a th:href="@{/security}" class="header__nav-link" th:classappend="${active == 'security'} ? 'is-active' : ''">Безопасность</a>
+        <a th:href="@{/files}" class="header__nav-link" th:classappend="${active == 'files'} ? 'is-active' : ''">Файлы</a>
     </nav>
     <div class="header__slot" th:if="${data != null}">
         <div class="header__meta">

@@ -565,6 +565,141 @@ body {
     color: var(--text-muted);
 }
 
+.section--files {
+    margin-top: 0;
+}
+
+.files-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.files-toolbar__title {
+    margin-bottom: 0.25rem;
+}
+
+.files-toolbar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.text-action--danger {
+    color: var(--critical);
+}
+
+.files-breadcrumb {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.files-breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.files-breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.files-breadcrumb__current {
+    font-weight: 500;
+    color: var(--text) !important;
+}
+
+.files-table-wrap {
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.files-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.files-table th,
+.files-table td {
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.files-table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg);
+}
+
+.files-table tr:last-child td {
+    border-bottom: none;
+}
+
+.files-table__check {
+    width: 2.5rem;
+}
+
+.files-table__empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem !important;
+}
+
+.files-table__actions {
+    white-space: nowrap;
+}
+
+.files-name--dir .files-name-btn {
+    font-weight: 600;
+}
+
+.files-name-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.files-name-btn:hover {
+    text-decoration: underline;
+}
+
+.files-preview {
+    margin-top: 1.5rem;
+}
+
+.files-preview__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.files-preview__content {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    max-height: 24rem;
+    overflow: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 @media (max-width: 640px) {
     .header,
     .main {

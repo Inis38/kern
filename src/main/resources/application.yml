@@ -6,11 +6,20 @@ spring:
     name: kern
   thymeleaf:
     cache: false
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 
 kern:
   monitoring:
     refresh-interval-ms: 5000
     cpu-sample-delay-ms: 500
+  files:
+    allowed-roots:
+      - /
+    max-content-bytes: 524288
+    max-upload-bytes: 104857600
   security:
     command-timeout-seconds: 8
     auth-log-timeout-seconds: 12
